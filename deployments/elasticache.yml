@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Stack
+
+Parameters:
+  NetworkStackName:
+    Type: String
+
+Resources:
+  # ElastiCache
+  JakartaJSCache:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      ClusterName: jakartsjs-demo-elasticache
+      Engine: redis
+      EngineVersion: '5.0.6'
+      AutoMinorVersionUpgrade: true
+      CacheNodeType: 'cache.t2.micro'
+      NumCacheNodes: 1
+      CacheSubnetGroupName: !Ref JakartaJSCacheSubnetGroup
+      VpcSecurityGroupIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSecurityGroup
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+  # Subnet Group
+  JakartaJSCacheSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      CacheSubnetGroupName: 'jakartsjs-demo-cache-subnet-group'
+      Description: AWS Loft Demo Cache Subnet Group
+      SubnetIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet1
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet2
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet3
+
+Outputs:
+  # ElastiCache
+  JakartaJSCache:
+    Value: !Ref JakartaJSCache
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSCache
+
+  # Subnet Group
+  JakartaJSCacheSubnetGroup:
+    Value: !Ref JakartaJSCacheSubnetGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSCacheSubnetGroup

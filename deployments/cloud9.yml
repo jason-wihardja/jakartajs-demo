@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Stack
+
+Parameters:
+  NetworkStackName:
+    Type: String
+
+Resources:
+  # Cloud9
+  JakartaJSCloud9:
+    Type: AWS::Cloud9::EnvironmentEC2
+    Properties:
+      Name: JakartaJSCloud9
+      Description: JakartaJS Demo Cloud9
+      InstanceType: 't2.micro'
+      AutomaticStopTimeMinutes: 15
+      SubnetId:
+        Fn::ImportValue:
+          !Sub ${NetworkStackName}-JakartaJSSubnet3
+
+Outputs:
+  # Cloud9
+  JakartaJSCloud9:
+    Value: !Ref JakartaJSCloud9
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSCloud9

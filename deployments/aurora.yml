@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Stack
+
+Parameters:
+  NetworkStackName:
+    Type: String
+
+Resources:
+  # Aurora
+  JakartaJSDatabase:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: 'jakartajs_demo_db'
+      DBClusterIdentifier: 'jakartajs-demo-db'
+      Engine: aurora
+      EngineMode: serverless
+      MasterUsername: 'jakartajs'
+      MasterUserPassword: 'JakartaJS0zxcvbnm'
+      ScalingConfiguration:
+        MinCapacity: 1
+        MaxCapacity: 1
+        AutoPause: true
+        SecondsUntilAutoPause: 3600
+      DBSubnetGroupName: !Ref JakartaJSDatabaseSubnetGroup
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+  # Subnet Group
+  JakartaJSDatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: 'jakarta-js-db-subnet-group'
+      DBSubnetGroupDescription: AWS Loft Demo Database Subnet Group
+      SubnetIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet1
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet2
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet3
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+Outputs:
+  # Aurora
+  JakartaJSDatabase:
+    Value: !Ref JakartaJSDatabase
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSDatabase
+
+  # Subnet Group
+  JakartaJSDatabaseSubnetGroup:
+    Value: !Ref JakartaJSDatabaseSubnetGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSDatabaseSubnetGroup

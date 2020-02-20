@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Stack
+
+Parameters:
+  NetworkStackName:
+    Type: String
+
+Resources:
+  # DocumentDB
+  JakartaJSDocumentDBCluster:
+    Type: AWS::DocDB::DBCluster
+    Properties:
+      DBClusterIdentifier: 'jakartsjs-demo-documentdb-cluster'
+      MasterUsername: 'jakartajs'
+      MasterUserPassword: 'JakartaJS0zxcvbnm'
+      Port: '27017'
+      StorageEncrypted: false
+      DBSubnetGroupName: !Ref JakartaJSDocumentDBSubnetGroup
+      VpcSecurityGroupIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSecurityGroup
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+  JakartaJSDocumentDBInstance:
+    Type: AWS::DocDB::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref JakartaJSDocumentDBCluster
+      DBInstanceClass: 'db.r5.large'
+      DBInstanceIdentifier: 'jakartsjs-demo-documentdb-instance'
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+  # Subnet Group
+  JakartaJSDocumentDBSubnetGroup:
+    Type: AWS::DocDB::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: 'jakartsjs-demo-documentdb-subnet-group'
+      DBSubnetGroupDescription: AWS Loft Demo DocumentDB Subnet Group
+      SubnetIds:
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet1
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet2
+        - Fn::ImportValue:
+            !Sub ${NetworkStackName}-JakartaJSSubnet3
+      Tags:
+        - Key: Stack
+          Value: jakartsjs-demo
+
+Outputs:
+  # DocumentDB
+  JakartaJSDocumentDBCluster:
+    Value: !Ref JakartaJSDocumentDBCluster
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSDocumentDBCluster
+
+  JakartaJSDocumentDBInstance:
+    Value: !Ref JakartaJSDocumentDBInstance
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSDocumentDBInstance
+
+  # Subnet Group
+  JakartaJSDocumentDBSubnetGroup:
+    Value: !Ref JakartaJSDocumentDBSubnetGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSDocumentDBSubnetGroup

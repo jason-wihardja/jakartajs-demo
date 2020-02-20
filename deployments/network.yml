@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Stack
+
+Resources:
+  # VPC
+  JakartaJSVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: '172.0.0.0/16'
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-vpc
+        - Key: Stack
+          Value: jakartajs-demo
+
+  # Security Group
+  JakartaJSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: jakartajs-demo-security-group
+      GroupDescription: jakartajs-demo-security-group
+      SecurityGroupEgress:
+        - Description: All traffic
+          IpProtocol: '-1'
+          CidrIp: '0.0.0.0/0'
+      SecurityGroupIngress:
+        - Description: All traffic
+          IpProtocol: '-1'
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-security-group
+        - Key: Stack
+          Value: jakartajs-demo
+      VpcId: !Ref JakartaJSVPC
+
+  # Internet Gateway
+  JakartaJSInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-internet-gateway
+        - Key: Stack
+          Value: jakartajs-demo
+  JakartaJSVPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref JakartaJSVPC
+      InternetGatewayId: !Ref JakartaJSInternetGateway
+
+  # Route Table
+  JakartaJSRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref JakartaJSVPC
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-route-table
+        - Key: Stack
+          Value: jakartajs-demo
+  JakartaJSRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref JakartaJSRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref JakartaJSInternetGateway
+
+  # Subnet
+  JakartaJSSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: 'JakartaJSVPC'
+      CidrBlock: '172.0.1.0/24'
+      AvailabilityZone: 'ap-southeast-1a'
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-subnet1
+        - Key: Stack
+          Value: jakartajs-demo
+  JakartaJSSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref JakartaJSRouteTable
+      SubnetId: !Ref JakartaJSSubnet1
+  JakartaJSSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref JakartaJSVPC
+      CidrBlock: '172.0.2.0/24'
+      AvailabilityZone: 'ap-southeast-1b'
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-subnet2
+        - Key: Stack
+          Value: jakartajs-demo
+  JakartaJSSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref JakartaJSRouteTable
+      SubnetId: !Ref JakartaJSSubnet2
+  JakartaJSSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: 'JakartaJSVPC'
+      CidrBlock: '172.0.3.0/24'
+      AvailabilityZone: 'ap-southeast-1c'
+      Tags:
+        - Key: Name
+          Value: jakartajs-demo-subnet3
+        - Key: Stack
+          Value: jakartajs-demo
+  JakartaJSSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref JakartaJSRouteTable
+      SubnetId: !Ref JakartaJSSubnet3
+
+Outputs:
+  # VPC
+  JakartaJSVPC:
+    Value: !Ref JakartaJSVPC
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSVPC
+
+  # Security Group
+  JakartaJSSecurityGroup:
+    Value: !Ref JakartaJSSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSecurityGroup
+
+  # Internet Gateway
+  JakartaJSInternetGateway:
+    Value: !Ref JakartaJSInternetGateway
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSInternetGateway
+  JakartaJSVPCGatewayAttachment:
+    Value: !Ref JakartaJSVPCGatewayAttachment
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSVPCGatewayAttachment
+
+  # Route Table
+  JakartaJSRouteTable:
+    Value: !Ref JakartaJSRouteTable
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSRouteTable
+  JakartaJSRoute:
+    Value: !Ref JakartaJSRoute
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSRoute
+
+  # Subnet
+  JakartaJSSubnet1:
+    Value: !Ref JakartaJSSubnet1
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet1
+  JakartaJSSubnet1RouteTableAssociation:
+    Value: !Ref JakartaJSSubnet1RouteTableAssociation
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet1RouteTableAssociation
+  JakartaJSSubnet2:
+    Value: !Ref JakartaJSSubnet2
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet2
+  JakartaJSSubnet2RouteTableAssociation:
+    Value: !Ref JakartaJSSubnet2RouteTableAssociation
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet2RouteTableAssociation
+  JakartaJSSubnet3:
+    Value: !Ref JakartaJSSubnet3
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet3
+  JakartaJSSubnet3RouteTableAssociation:
+    Value: !Ref JakartaJSSubnet3RouteTableAssociation
+    Export:
+      Name: !Sub ${AWS::StackName}-JakartaJSSubnet3RouteTableAssociation

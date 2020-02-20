@@ -1,0 +1,76 @@
+{
+  "name": "jakartajs-demo",
+  "version": "1.0.0",
+  "description": "AWS Loft Jakarta Demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run unit-test && npm run report-coverage && npm run check-coverage; npm run report-test",
+    "unit-test": "NODE_ENV=test nyc --reporter=text ava --verbose",
+    "report-coverage": "NODE_ENV=test nyc report",
+    "check-coverage": "NODE_ENV=test nyc check-coverage",
+    "report-test": "NODE_ENV=test ava --tap | bizzy-tap-html > coverage/report.html",
+    "stack:network:create": "aws cloudformation create-stack --stack-name jakartajs-demo-network-stack --template-body file://deployments/network.yml --capabilities CAPABILITY_NAMED_IAM",
+    "stack:network:update": "aws cloudformation update-stack --stack-name jakartajs-demo-network-stack --template-body file://deployments/network.yml --capabilities CAPABILITY_NAMED_IAM",
+    "stack:network:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-network-stack",
+    "stack:database:create": "aws cloudformation create-stack --stack-name jakartajs-demo-database-stack --template-body file://deployments/aurora.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:database:update": "aws cloudformation update-stack --stack-name jakartajs-demo-database-stack --template-body file://deployments/aurora.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:database:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-database-stack",
+    "stack:cache:create": "aws cloudformation create-stack --stack-name jakartajs-demo-cache-stack --template-body file://deployments/elasticache.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:cache:update": "aws cloudformation update-stack --stack-name jakartajs-demo-cache-stack --template-body file://deployments/elasticache.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:cache:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-cache-stack",
+    "stack:documentdb:create": "aws cloudformation create-stack --stack-name jakartajs-demo-documentdb-stack --template-body file://deployments/documentdb.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:documentdb:update": "aws cloudformation update-stack --stack-name jakartajs-demo-documentdb-stack --template-body file://deployments/documentdb.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:documentdb:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-documentdb-stack",
+    "stack:lambda:create": "aws cloudformation create-stack --stack-name jakartajs-demo-lambda-stack --template-body file://deployments/lambda.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:lambda:update": "aws cloudformation update-stack --stack-name jakartajs-demo-lambda-stack --template-body file://deployments/lambda.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:lambda:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-lambda-stack",
+    "stack:cloud9:create": "aws cloudformation create-stack --stack-name jakartajs-demo-cloud9-stack --template-body file://deployments/cloud9.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:cloud9:update": "aws cloudformation update-stack --stack-name jakartajs-demo-cloud9-stack --template-body file://deployments/cloud9.yml --parameters ParameterKey=NetworkStackName,ParameterValue=jakartajs-demo-network-stack --capabilities CAPABILITY_NAMED_IAM",
+    "stack:cloud9:delete": "aws cloudformation delete-stack --stack-name jakartajs-demo-cloud9-stack",
+    "deploy": "zip -r ./Build.zip .env jakartajs-demo-models db_context error handler.js index.js libs mongo_context node_modules package* redis_context rds-combined-ca-bundle.pem > /dev/null && aws lambda update-function-code --function-name jakartajs-demo-lambda --zip-file fileb://./Build.zip && rm -f ./Build.zip"
+  },
+  "author": "Jason Wihardja",
+  "dependencies": {
+    "@hapi/joi": "^16.1.8",
+    "aws-sdk": "^2.620.0",
+    "dotenv": "^8.2.0",
+    "generic-pool": "^3.7.1",
+    "lodash": "^4.17.15",
+    "mongodb": "^3.5.3",
+    "mysql2": "^1.7.0",
+    "redis": "^2.8.0",
+    "sequelize": "^4.44.3",
+    "sequelize-values": "^1.1.0",
+    "string": "^3.3.3",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "ava": "^2.4.0",
+    "mockery": "^2.1.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.5.0"
+  },
+  "nyc": {
+    "check-coverage": false,
+    "per-file": true,
+    "lines": 85,
+    "statements": 85,
+    "functions": 85,
+    "branches": 85,
+    "exclude": [
+      "**/test/*.test.js"
+    ],
+    "reporter": [
+      "lcov"
+    ]
+  },
+  "ava": {
+    "files": [
+      "**/test/*.test.js"
+    ],
+    "failFast": false,
+    "failWithoutAssertions": false,
+    "tap": false,
+    "powerAssert": true
+  }
+}
